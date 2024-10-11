@@ -25,7 +25,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USR }}
+          username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_PAT }}
       -
         name: Build and push
@@ -34,7 +34,7 @@ jobs:
           context: cli/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/digital-entropy/dokar-php/cli:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/cli:8.3
 
   build-fpm:
     needs: build-cli
@@ -54,7 +54,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USR }}
+          username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_PAT }}
       -
         name: Build and push
@@ -63,7 +63,7 @@ jobs:
           context: fpm/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/digital-entropy/dokar-php/fpm:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/fpm:8.3
 
   build-octane:
     runs-on: ubuntu-22.04
@@ -82,7 +82,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USR }}
+          username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_PAT }}
       -
         name: Build and push
@@ -91,7 +91,7 @@ jobs:
           context: octane/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/digital-entropy/dokar-php/octane:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/octane:8.3
 
   build-nginx:
     needs: build-fpm
@@ -111,7 +111,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USR }}
+          username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_PAT }}
       -
         name: Build and push
@@ -120,4 +120,4 @@ jobs:
           context: nginx/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/digital-entropy/dokar-php/nginx:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/nginx:8.3
