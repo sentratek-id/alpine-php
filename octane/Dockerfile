@@ -1,62 +1,39 @@
-FROM ubuntu:noble
+FROM alpine:3.20
 
-LABEL org.opencontainers.image.source=https://github.com/digital-entropy/dokar-php
-
-ENV DEBIAN_FRONTEND=noninteractive
+LABEL org.opencontainers.image.source=https://github.com/sentratek-id/alpine-php
 
 ENV TERM=linux
-
 ENV TZ=UTC
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gnupg gosu curl ca-certificates zip unzip git sqlite3 libcap2-bin libpng-dev build-essential libbrotli-dev \
-    && mkdir -p ~/.gnupg \
-    && chmod 600 ~/.gnupg \
-    && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
-    && echo "keyserver hkp://keyserver.ubuntu.com:80" >> ~/.gnupg/dirmngr.conf \
-    && gpg --recv-key 0x14aa40ec0831756756d7f66c4f4ea0aae5267a6c \
-    && gpg --export 0x14aa40ec0831756756d7f66c4f4ea0aae5267a6c > /usr/share/keyrings/ppa_ondrej_php.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/ppa_ondrej_php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu noble main" > /etc/apt/sources.list.d/ppa_ondrej_php.list \
-    && apt-get update \
-    && apt-get install -y php8.3-cli php8.3-dev \
-       php8.3-pgsql php8.3-sqlite3 php8.3-gd \
-       php8.3-curl \
-       php8.3-imap php8.3-mysql php8.3-mbstring \
-       php8.3-xml php8.3-zip php8.3-bcmath php8.3-soap \
-       php8.3-intl php8.3-readline \
-       php8.3-redis php8.3-igbinary php8.3-swoole \
-       php8.3-ldap php-pear \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+RUN apk update \
+    && apk add tzdata bash curl ca-certificates sed zip unzip git sqlite libcap libpng \
+        php83-fpm php83-soap php83-openssl php83-gmp php83-pdo_odbc php83-json php83-pear \
+        php83-dom php83-pdo php83-zip php83-mysqli php83-sqlite3 php83-apcu php83-imap \
+        php83-pdo_pgsql php83-bcmath php83-gd php83-odbc php83-pdo_mysql php83-mbstring \
+        php83-pdo_sqlite php83-gettext php83-xmlreader php83-bz2 php83-iconv php83-intl \
+        php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer composer \
+        nginx supervisor nodejs \
     && composer global require --quiet --no-ansi laravel/envoy \
-    && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/bin/envoy \
+    && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
+
     # octane use chokidar for --watch option so we need to install nodejs
-    && mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && NODE_MAJOR=20 \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-    && apt update && apt install nodejs -y \
     && npm install -g chokidar pnpm \
+
     # cleaning
     && composer clear-cache --quiet \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-        build-essential \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+    && apk cache clean
+
+RUN sed -i "s|;*date.timezone =.*|date.timezone = ${TZ}|i" /etc/php83/php.ini
 
 COPY runner.sh /runner.sh
 
 # Add a non-root user to prevent files being created with root permissions on host machine.
-ONBUILD ARG USER_CONTAINER=dokar
-ONBUILD ENV USER_CONTAINER=${USER_CONTAINER}
-ONBUILD ARG PUID=1000
-ONBUILD ENV PUID=${PUID}
-ONBUILD ARG PGID=1000
-ONBUILD ENV PGID=${PGID}
+ARG USER_CONTAINER=worker
+ENV USER_CONTAINER=${USER_CONTAINER}
 
-ONBUILD RUN (grep -q ":${PGID}:" /etc/group && old_group=$(getent group ${PGID} | cut -d: -f1) && groupmod -n ${USER_CONTAINER} ${old_group} || groupadd -g ${PGID} ${USER_CONTAINER}) \
-    && (grep -q ":${PUID}:" /etc/passwd && old_user=$(getent passwd ${PUID} | cut -d: -f1) && usermod -l ${USER_CONTAINER} -d /home/${USER_CONTAINER} -m ${old_user} || useradd --gid ${PGID} --uid ${PUID} -m ${USER_CONTAINER})
+RUN adduser -D ${USER_CONTAINER} ${USER_CONTAINER}
 
 EXPOSE 80
 
