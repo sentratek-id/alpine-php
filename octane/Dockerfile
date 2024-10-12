@@ -14,7 +14,7 @@ RUN apk update \
         php83-pdo_pgsql php83-bcmath php83-gd php83-odbc php83-pdo_mysql php83-mbstring \
         php83-pdo_sqlite php83-gettext php83-xmlreader php83-bz2 php83-iconv php83-intl \
         php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer composer \
-        nginx supervisor nodejs npm \
+        nodejs npm \
     && composer global require --quiet --no-ansi laravel/envoy \
     && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
 
