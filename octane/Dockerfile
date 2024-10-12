@@ -13,8 +13,10 @@ RUN apk update \
         php83-dom php83-pdo php83-zip php83-mysqli php83-sqlite3 php83-apcu php83-imap \
         php83-pdo_pgsql php83-bcmath php83-gd php83-odbc php83-pdo_mysql php83-mbstring \
         php83-pdo_sqlite php83-gettext php83-xmlreader php83-bz2 php83-iconv php83-intl \
-        php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer composer \
-        nodejs npm \
+        php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer php83-dev \
+        alpine-sdk brotli brotli-dev composer nodejs npm \
+    && pecl channel-update https://pecl.php.net/channel.xml \
+    && pecl install igbinary redis swoole \
     && composer global require --quiet --no-ansi laravel/envoy \
     && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
 
@@ -23,6 +25,7 @@ RUN apk update \
 
     # cleaning
     && composer clear-cache --quiet \
+    && apk del alpine-sdk brotli brotli-dev \
     && apk cache clean
 
 RUN sed -i "s|;*date.timezone =.*|date.timezone = ${TZ}|i" /etc/php83/php.ini
