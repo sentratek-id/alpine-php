@@ -20,10 +20,10 @@ COPY index.php /var/www/public
 WORKDIR /var/www
 
 # Add a non-root user to prevent files being created with root permissions on host machine.
-ARG USER_CONTAINER=worker
-ENV USER_CONTAINER=${USER_CONTAINER}
+ONBUILD ARG USER_CONTAINER=worker
+ONBUILD ENV USER_CONTAINER=${USER_CONTAINER}
 
-RUN adduser -D ${USER_CONTAINER} ${USER_CONTAINER}
+ONBUILD RUN adduser -D ${USER_CONTAINER} ${USER_CONTAINER}
 
 EXPOSE 80
 
