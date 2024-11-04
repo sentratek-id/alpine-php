@@ -14,7 +14,8 @@ RUN apk update \
         php83-pdo_pgsql php83-bcmath php83-gd php83-odbc php83-pdo_mysql php83-mbstring \
         php83-pdo_sqlite php83-gettext php83-xmlreader php83-bz2 php83-iconv php83-intl \
         php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer php83-dev \
-        alpine-sdk brotli brotli-dev runuser composer nodejs npm \
+        php83-fileinfo php83-pcntl php83-posix php83-xmlwriter alpine-sdk brotli brotli-dev \
+        runuser composer nodejs npm \
     && pecl channel-update https://pecl.php.net/channel.xml \
     && pecl install igbinary redis swoole \
     && echo "extension=igbinary.so" > /etc/php83/conf.d/20-igbinary.ioni \
