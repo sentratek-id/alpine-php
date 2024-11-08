@@ -15,7 +15,7 @@ RUN apk update \
         php83-pdo_sqlite php83-gettext php83-xmlreader php83-bz2 php83-iconv php83-intl \
         php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer php83-dev \
         php83-fileinfo php83-pcntl php83-posix php83-xmlwriter alpine-sdk brotli brotli-dev \
-        runuser composer nodejs npm \
+        runuser composer \
     && pecl channel-update https://pecl.php.net/channel.xml \
     && pecl install igbinary redis swoole \
     && echo "extension=igbinary.so" > /etc/php83/conf.d/20-igbinary.ioni \
@@ -23,8 +23,6 @@ RUN apk update \
     && echo "extension=swoole.so" > /etc/php83/conf.d/20-swoole.ini \
     && composer global require --quiet --no-ansi laravel/envoy \
     && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
-    # octane use chokidar for --watch option so we need to install nodejs
-    && npm install -g chokidar pnpm \
     # cleaning
     && composer clear-cache --quiet \
     && apk del alpine-sdk brotli brotli-dev \
