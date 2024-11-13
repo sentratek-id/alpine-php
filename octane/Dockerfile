@@ -14,18 +14,14 @@ RUN apk update \
         php83-pdo_pgsql php83-bcmath php83-gd php83-odbc php83-pdo_mysql php83-mbstring \
         php83-pdo_sqlite php83-gettext php83-xmlreader php83-bz2 php83-iconv php83-intl \
         php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer php83-dev \
-        php83-fileinfo php83-pcntl php83-posix php83-xmlwriter alpine-sdk brotli brotli-dev \
+        php83-fileinfo php83-pcntl php83-posix php83-xmlwriter \
+        php83-pecl-igbinary php83-pecl-redis php83-pecl-swoole \
         runuser composer \
     && pecl channel-update https://pecl.php.net/channel.xml \
-    && pecl install igbinary redis swoole \
-    && echo "extension=igbinary.so" > /etc/php83/conf.d/20-igbinary.ioni \
-    && echo "extension=redis.so" > /etc/php83/conf.d/20-redis.ini \
-    && echo "extension=swoole.so" > /etc/php83/conf.d/20-swoole.ini \
     && composer global require --quiet --no-ansi laravel/envoy \
     && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
     # cleaning
     && composer clear-cache --quiet \
-    && apk del alpine-sdk brotli brotli-dev \
     && apk cache clean
 
 RUN sed -i "s|;*date.timezone =.*|date.timezone = ${TZ}|i" /etc/php83/php.ini
