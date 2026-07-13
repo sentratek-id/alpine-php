@@ -27,7 +27,7 @@ jobs:
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" cli/Dockerfile
           # If we are building 8.4, upgrade Alpine 3.20 to 3.21
           if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.21/g" cli/Dockerfile
+            sed -i "s/alpine:3.20/alpine:3.23/g" cli/Dockerfile
           fi
       -
         name: Set up QEMU
@@ -71,7 +71,7 @@ jobs:
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" fpm/Dockerfile
           # If we are building 8.4, upgrade Alpine 3.20 to 3.21
           if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.21/g" fpm/Dockerfile
+            sed -i "s/alpine:3.20/alpine:3.23/g" fpm/Dockerfile
           fi
       -
         name: Set up QEMU
@@ -114,8 +114,7 @@ jobs:
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" octane/Dockerfile
           # PHP 8.4 specific adjustments (Upgrade Alpine, drop PEAR, remove PECL command)
           if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.21/g" octane/Dockerfile
-            sed -i "s/pecl /pecl84 /" octane/Dockerfile
+            sed -i "s/alpine:3.20/alpine:3.23/g" octane/Dockerfile
           fi
       -
         name: Set up QEMU
@@ -159,7 +158,7 @@ jobs:
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" nginx/Dockerfile
           # If we are building 8.4, upgrade Alpine 3.20 to 3.21
           if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.21/g" nginx/Dockerfile
+            sed -i "s/alpine:3.20/alpine:3.23/g" nginx/Dockerfile
           fi
       -
         name: Set up QEMU
