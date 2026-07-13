@@ -10,10 +10,21 @@ on:
 jobs:
   build-cli:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - version: "8.3"
+            pkg: "83"
+          - version: "8.4"
+            pkg: "84"
     steps:
       -
         name: Checkout
         uses: actions/checkout@v7
+      -
+        name: Modify Dockerfile version
+        run: |
+          sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" cli/Dockerfile
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -34,15 +45,26 @@ jobs:
           context: cli/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/sentratek-id/alpine-php/cli:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/cli:${{ matrix.version }}
 
   build-fpm:
     needs: build-cli
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - version: "8.3"
+            pkg: "83"
+          - version: "8.4"
+            pkg: "84"
     steps:
       -
         name: Checkout
         uses: actions/checkout@v7
+      -
+        name: Modify Dockerfile version
+        run: |
+          sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" fpm/Dockerfile
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -63,14 +85,25 @@ jobs:
           context: fpm/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/sentratek-id/alpine-php/fpm:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/fpm:${{ matrix.version }}
 
   build-octane:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - version: "8.3"
+            pkg: "83"
+          - version: "8.4"
+            pkg: "84"
     steps:
       -
         name: Checkout
         uses: actions/checkout@v7
+      -
+        name: Modify Dockerfile version
+        run: |
+          sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" octane/Dockerfile
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -91,15 +124,26 @@ jobs:
           context: octane/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/sentratek-id/alpine-php/octane:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/octane:${{ matrix.version }}
 
   build-nginx:
     needs: build-fpm
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - version: "8.3"
+            pkg: "83"
+          - version: "8.4"
+            pkg: "84"
     steps:
       -
         name: Checkout
         uses: actions/checkout@v7
+      -
+        name: Modify Dockerfile version
+        run: |
+          sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" nginx/Dockerfile
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -120,4 +164,4 @@ jobs:
           context: nginx/
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/sentratek-id/alpine-php/nginx:8.3
+          tags: ghcr.io/sentratek-id/alpine-php/nginx:${{ matrix.version }}
