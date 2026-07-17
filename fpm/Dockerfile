@@ -1,4 +1,4 @@
-FROM ghcr.io/sentratek-id/alpine-php/cli:8.3
+FROM ghcr.io/sentratek-id/alpine-php/cli:8.4
 
 LABEL org.opencontainers.image.source=https://github.com/sentratek-id/alpine-php
 
