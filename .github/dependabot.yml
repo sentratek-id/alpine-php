@@ -22,3 +22,9 @@ updates:
     directory: "/nginx"
     schedule:
       interval: "weekly"
+
+  # Entry for the Octane Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/octane"
+    schedule:
+      interval: "weekly"
