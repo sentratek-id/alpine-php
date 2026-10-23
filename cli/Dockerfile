@@ -16,7 +16,12 @@ RUN apk update \
         php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer \
         # versioned CLI binary: the version gate below (and consumers) target it
         # explicitly; the distro-default /usr/bin/php (php85 on 3.24) is not ours
-        php83 composer \
+        php83 php83-phar composer \
+    # bind the default php binary to the pinned runtime (the distro php is
+    # 8.5 on alpine:3.24 and shadows it) and exec the composer wrapper
+    # through PATH so composer runs the same branch
+    && ln -sfn /usr/bin/php83 /usr/local/bin/php \
+    && printf '#!/bin/sh\nexec php /usr/bin/composer.phar "$@"\n' > /usr/bin/composer \
     && composer global require --quiet --no-ansi laravel/envoy \
     && composer clear-cache --quiet \
     && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
