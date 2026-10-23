@@ -18,7 +18,12 @@ RUN apk update \
         php83-pdo_dblib php83-curl php83-ctype php83-session php83-tokenizer php83-dev \
         php83-fileinfo php83-pcntl php83-posix php83-xmlwriter \
         php83-pecl-igbinary php83-pecl-redis php83-pecl-swoole \
-        runuser composer \
+        php83-phar runuser composer \
+    # bind the default php binary to the pinned runtime (the distro php is
+    # 8.5 on alpine:3.24 and shadows it) and exec the composer wrapper
+    # through PATH so composer runs the same branch
+    && ln -sfn /usr/bin/php83 /usr/local/bin/php \
+    && printf '#!/bin/sh\nexec php /usr/bin/composer.phar "$@"\n' > /usr/bin/composer \
     && pecl83 channel-update https://pecl.php.net/channel.xml \
     && composer global require --quiet --no-ansi laravel/envoy \
     && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
