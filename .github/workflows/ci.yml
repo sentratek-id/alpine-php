@@ -25,9 +25,10 @@ jobs:
         name: Modify Dockerfile version
         run: |
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" cli/Dockerfile
-          # If we are building 8.4, upgrade Alpine 3.20 to 3.21
+          # On 3.23/3.24 PECL extensions are phpXX-pecl-* (json is built into
+          # the core; apcu has no unsuffixed php84-apcu package)
           if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.23/g" cli/Dockerfile
+            sed -i "s/php84-apcu/php84-pecl-apcu/g" cli/Dockerfile
           fi
       -
         name: Set up QEMU
@@ -69,10 +70,9 @@ jobs:
         name: Modify Dockerfile version
         run: |
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" fpm/Dockerfile
-          # If we are building 8.4, upgrade Alpine 3.20 to 3.21
-          if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.23/g" fpm/Dockerfile
-          fi
+          # Track the matrix version in the base image reference; a hardcoded
+          # cli:8.3 made fpm:8.4 build FROM the wrong (8.3) base image
+          sed -i "s|alpine-php/cli:8.3|alpine-php/cli:${{ matrix.version }}|" fpm/Dockerfile
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -112,9 +112,10 @@ jobs:
         name: Modify Dockerfile version
         run: |
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" octane/Dockerfile
-          # PHP 8.4 specific adjustments (Upgrade Alpine, drop PEAR, remove PECL command)
+          # On 3.23/3.24 PECL extensions are phpXX-pecl-* (json is built into
+          # the core; apcu/imap have no unsuffixed php84-* packages)
           if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.23/g" octane/Dockerfile
+            sed -i "s/php84-apcu/php84-pecl-apcu/g;s/php84-imap/php84-pecl-imap/g;s/pecl83/pecl84/g" octane/Dockerfile
           fi
       -
         name: Set up QEMU
@@ -156,10 +157,9 @@ jobs:
         name: Modify Dockerfile version
         run: |
           sed -i "s/php83/php${{ matrix.pkg }}/g;s/php84-json//g" nginx/Dockerfile
-          # If we are building 8.4, upgrade Alpine 3.20 to 3.21
-          if [ "${{ matrix.version }}" = "8.4" ]; then
-            sed -i "s/alpine:3.20/alpine:3.23/g" nginx/Dockerfile
-          fi
+          # Track the matrix version in the base image reference; a hardcoded
+          # fpm:8.3 made nginx:8.4 build FROM the wrong (8.3) base image
+          sed -i "s|alpine-php/fpm:8.3|alpine-php/fpm:${{ matrix.version }}|" nginx/Dockerfile
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v4

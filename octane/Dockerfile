@@ -1,4 +1,6 @@
-FROM alpine:3.20
+# alpine:3.20 ships php83-8.3.15, which predates the PHP2Shell fix
+# (8.3.36). 3.23 and 3.24 carry php83-8.3.36-r0 / php84-8.4.27-r0.
+FROM alpine:3.24
 
 LABEL org.opencontainers.image.source=https://github.com/sentratek-id/alpine-php
 
@@ -17,14 +19,23 @@ RUN apk update \
         php83-fileinfo php83-pcntl php83-posix php83-xmlwriter \
         php83-pecl-igbinary php83-pecl-redis php83-pecl-swoole \
         runuser composer \
-    && pecl channel-update https://pecl.php.net/channel.xml \
+    && pecl83 channel-update https://pecl.php.net/channel.xml \
     && composer global require --quiet --no-ansi laravel/envoy \
     && ln -s /root/.composer/vendor/laravel/envoy/bin/envoy /usr/local/bin/envoy \
     # cleaning
     && composer clear-cache --quiet \
-    && apk cache clean
+    && apk cache clean \
+    # PHP2Shell fail-closed gate (CVE-2026-109618 / CVE-2026-109619):
+    # abort the build unless the runtime is at least the fixed release of
+    # its own branch (8.2>=.35, 8.3>=.36, 8.4>=.27, 8.5>=.12)
+    && php83 -r '$f=["8.2"=>"8.2.35","8.3"=>"8.3.36","8.4"=>"8.4.27","8.5"=>"8.5.12"][$b=PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION]??""; printf("PHP runtime: %s\n", PHP_VERSION); exit($f!=="" && version_compare(PHP_VERSION, $f, ">=") ? 0 : 42);'
 
 RUN sed -i "s|;*date.timezone =.*|date.timezone = ${TZ}|i" /etc/php83/php.ini
+
+# PHP2Shell hardening: the session.upload_progress producer writes
+# attacker-controlled filenames into native session files even on patched
+# PHP (the emergency fix covers consumers only). Disable it permanently.
+COPY php2shell.ini /etc/php83/conf.d/php2shell.ini
 
 COPY runner.sh /runner.sh
 
